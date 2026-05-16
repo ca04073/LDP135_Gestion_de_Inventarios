@@ -76,3 +76,12 @@ El menú interactivo se mantiene operativo mediante una evaluación continua de 
 > **Optimización de Sintaxis para Perfiles Estrictos** 
 >
 >Para asegurar la compatibilidad total y evitar fallos de lectura, se reemplazó el comando `Segun` por condicionales `Si... Entonces` independientes y se sustituyó el operador `<>` por evaluaciones de igualdad lógica (`O`). Esto garantiza que el pseudocódigo corra sin importar qué tan estricto sea el compilador.
+
+
+---
+
+## 🚀 Próximo Paso: Del Pseudocódigo al Objeto Python
+
+Este diseño lógico está desacoplado de la interfaz. En la **Fase 2**, los arreglos paralelos serán obsoletos:
+1. Cada producto se modelará como un **Diccionario** o una instancia de clase (`models.py`).
+2. El control de duplicados se resolverá eficientemente mediante consultas `SELECT` indexadas en SQLite (`repository.py`), eliminando la necesidad de bucles lineales manuales.
