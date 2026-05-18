@@ -16,7 +16,7 @@ creado: 2026-05-15
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
 ![Database](https://img.shields.io/badge/DB-SQLite-lightgrey?logo=sqlite)
-![Dev Environment](https://img.shields.io/badge/Env-Docker-blue?logo=docker)
+![Dev Environment|97](https://img.shields.io/badge/Env-Docker-blue?logo=docker)
 ![Doc Strategy](https://img.shields.io/badge/Docs-Obsidian-purple?logo=obsidian)
 
 **Gestión de Inventario** es el motor lógico central para el control eficiente de productos, stock y movimientos de almacén, estructurado bajo una arquitectura modular estricta. El proyecto separa completamente la lógica de negocio de la interfaz de usuario, permitiendo que la aplicación opere actualmente vía CLI, con la preparación arquitectónica para evolucionar a una API REST (FastAPI) en el futuro.
