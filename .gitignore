@@ -1,0 +1,24 @@
+# --- IDE y Configuraciones de Sistema ---
+.idea/
+.DS_Store
+*.swp
+
+# --- Entorno Virtual ---
+.venv/
+venv/
+env/
+venv/
+.env
+
+# --- Base de Datos (Seguridad de Desarrollo) ---
+# Si queremos que los datos de prueba no se suban al repo:
+*.db
+*.db-journal
+
+# --- Archivos compilados de Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Obsidian (Contexto Super Vault) ---
+.obsidian/
