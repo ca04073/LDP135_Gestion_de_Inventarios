@@ -12,7 +12,7 @@ tags:
 creado: 2026-05-15
 ---
 
-# 📦 Gestión de Inventario
+#  Gestión de Inventario
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
 ![Database](https://img.shields.io/badge/DB-SQLite-lightgrey?logo=sqlite)
@@ -29,7 +29,7 @@ creado: 2026-05-15
 
 ---
 
-## 🛠️ Stack Tecnológico Seleccionado
+##  Stack Tecnológico Seleccionado
 
 | Componente | Tecnología | Justificación |
 | :--- | :--- | :--- |
@@ -41,36 +41,36 @@ creado: 2026-05-15
 
 ---
 
-## 📂 Estructura del Repositorio
+##  Estructura del Repositorio
 
 El código y la documentación se organizan siguiendo el principio de **Separación de Responsabilidades**:
 
 ```text
 gestion_inventario/
 │
-├── core/                   # 🧠 LÓGICA DE NEGOCIO (Independiente de la CLI)
+├── core/                   #  LÓGICA DE NEGOCIO (Independiente de la CLI)
 │   ├── __init__.py
 │   ├── inventory.py        # Funciones de validación (ej. check_stock)
 │   └── models.py           # Estructuras de datos (Clases o Diccionarios)
 │
-├── storage/                # 💾 CAPA DE DATOS (Persistencia)
+├── storage/                #  CAPA DE DATOS (Persistencia)
 │   ├── __init__.py
 │   ├── database.py         # Conexión a SQLite
 │   └── repository.py       # Transforma filas de SQL a Diccionarios y viceversa
 │
-├── cli/                    # 🖥️ CAPA DE PRESENTACIÓN (La interfaz actual)
+├── cli/                    #  CAPA DE PRESENTACIÓN (La interfaz actual)
 │   ├── __init__.py
 │   ├── menus.py            # Solo prints e inputs (interacción con el usuario)
 │   └── app.py              # Conecta los inputs con el 'core'
 │
-├── tests/                  # 🧪 PRUEBAS UNITARIAS
+├── tests/                  #  PRUEBAS UNITARIAS
 │   └── test_inventory.py   # Pruebas automatizadas de reglas de negocio
 │
-├── docs/                   # 📑 CENTRAL DE DOCUMENTACIÓN TÉCNICA
+├── docs/                   #  CENTRAL DE DOCUMENTACIÓN TÉCNICA
 │   └── proyecto/
 │       └── entrega_1/      # Documentos específicos de cada hito de desarrollo
 │
-├── main.py                 # 🚀 Punto de entrada de la aplicación
+├── main.py                 #  Punto de entrada de la aplicación
 ├── README.md               # Portada general del proyecto
 └── .gitignore              # Excluye .obsidian/ y archivos temporales locales
 ```
@@ -115,7 +115,7 @@ docker-compose up --build
 
 ---
 
-## 📈 Roadmap (Plan de Trabajo LDP135)
+##  Roadmap (Plan de Trabajo LDP135)
 
 - [x] **Fase 1: Diseño de Lógica Base:** Creación de pseudocódigo en PSeInt (ver `docs/proyecto/entrega_1/`).
     
