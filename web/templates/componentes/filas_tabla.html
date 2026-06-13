@@ -1,0 +1,29 @@
+{% for p in productos %}
+<tr id="fila-{{ p.codigo }}" class="hover:bg-gray-750 transition-colors border-b border-gray-700">
+    <td class="py-3 px-4 font-mono text-sm text-brand-claro">{{ p.codigo }}</td>
+    <td class="py-3 px-4">{{ p.nombre }}</td>
+    <td class="py-3 px-4 text-right">{{ p.cantidad }}</td>
+    <td class="py-3 px-4 text-right">${{ "%.2f"|format(p.precio) }}</td>
+    <td class="py-3 px-4 text-gray-400">{{ p.proveedor }}</td>
+    <td class="py-3 px-4 text-center space-x-2">
+        <button onclick="cargarFormulario('{{ p.codigo }}', '{{ p.nombre }}', {{ p.cantidad }}, {{ p.precio }}, '{{ p.proveedor }}')"
+                class="text-blue-400 hover:text-blue-300 transition-colors font-medium text-xs">
+            Editar
+        </button>
+        <span>|</span>
+        <button hx-delete="/productos/{{ p.codigo }}"
+                hx-target="#fila-{{ p.codigo }}"
+                hx-swap="outerHTML"
+                hx-confirm="¿Estás seguro de eliminar el producto {{ p.nombre }}?"
+                class="text-red-400 hover:text-red-300 transition-colors font-medium text-xs">
+            Eliminar
+        </button>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="6" class="py-8 text-center text-gray-500 italic">
+        Inventario vacío. Registra un producto para comenzar.
+    </td>
+</tr>
+{% endfor %}

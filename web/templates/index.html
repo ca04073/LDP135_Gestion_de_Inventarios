@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Inventario - Kraken Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/morado-tailwind-config.js" defer></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+    <div class="container mx-auto p-6 max-w-5xl">
+        <header class="mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-3xl font-bold text-brand-claro">📊 Gestión de Inventario Web</h1>
+            <p class="text-gray-400 text-sm mt-1">Fase 3: Operaciones en Tiempo Real con FastAPI + HTMX</p>
+        </header>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section class="bg-gray-800 rounded-lg shadow-xl p-5 border border-gray-700 h-fit">
+                <h2 id="form-titulo" class="text-lg font-semibold mb-4 text-gray-200">➕ Registrar Producto</h2>
+                <form id="producto-form"
+                      hx-post="/productos"
+                      hx-target="#tabla-productos"
+                      hx-swap="innerHTML"
+                      class="space-y-4 text-sm">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Código</label>
+                        <input type="text" name="codigo" id="input-codigo" required
+                               class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-brand-claro font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Nombre</label>
+                        <input type="text" name="nombre" id="input-nombre" required
+                               class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-brand-claro">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Cantidad</label>
+                            <input type="number" name="cantidad" id="input-cantidad" min="0" required
+                                   class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-brand-claro">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Precio</label>
+                            <input type="number" name="precio" id="input-precio" min="0" step="0.01" required
+                                   class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-brand-claro">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Proveedor</label>
+                        <input type="text" name="proveedor" id="input-proveedor" required
+                               class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-brand-claro">
+                    </div>
+                    <button type="submit" id="btn-submit"
+                            class="w-full bg-brand-base hover:bg-brand-oscuro text-white font-medium py-2 rounded transition-colors mt-2 shadow-lg">
+                        Guardar Producto
+                    </button>
+                    <button type="button" id="btn-cancelar" onclick="resetearFormulario()"
+                            class="w-full bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium py-2 rounded transition-colors mt-1 hidden">
+                        Cancelar Edición
+                    </button>
+                </form>
+            </section>
+            <section class="md:col-span-2 bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 text-gray-200">📦 Artículos en Existencia</h2>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-700 text-brand-claro font-medium text-sm">
+                                <th class="py-3 px-4">Código</th>
+                                <th class="py-3 px-4">Nombre</th>
+                                <th class="py-3 px-4 text-right">Stock</th>
+                                <th class="py-3 px-4 text-right">Precio</th>
+                                <th class="py-3 px-4">Proveedor</th>
+                                <th class="py-3 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-productos" class="divide-y divide-gray-700 text-gray-300 text-sm">
+                            {% include 'componentes/filas_tabla.html' %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script>
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            if (evt.detail.target.id === 'tabla-productos' && evt.detail.successful) {
+                resetearFormulario();
+            }
+        });
+        function cargarFormulario(codigo, nombre, cantidad, precio, proveedor) {
+            document.getElementById('form-titulo').innerText = "📝 Editar Producto";
+            document.getElementById('input-codigo').value = codigo;
+            document.getElementById('input-codigo').setAttribute('readonly', 'true');
+            document.getElementById('input-codigo').classList.add('opacity-60', 'cursor-not-allowed');
+            document.getElementById('input-nombre').value = nombre;
+            document.getElementById('input-cantidad').value = cantidad;
+            document.getElementById('input-precio').value = precio;
+            document.getElementById('input-proveedor').value = proveedor;
+            document.getElementById('btn-submit').innerText = "Actualizar Cambios";
+            document.getElementById('btn-cancelar').classList.remove('hidden');
+            document.getElementById('producto-form').setAttribute('hx-post', '/productos/actualizar');
+            htmx.process(document.getElementById('producto-form'));
+        }
+        function resetearFormulario() {
+            document.getElementById('producto-form').reset();
+            document.getElementById('form-titulo').innerText = "➕ Registrar Producto";
+            document.getElementById('input-codigo').removeAttribute('readonly');
+            document.getElementById('input-codigo').classList.remove('opacity-60', 'cursor-not-allowed');
+            document.getElementById('btn-submit').innerText = "Guardar Producto";
+            document.getElementById('btn-cancelar').classList.add('hidden');
+            document.getElementById('producto-form').setAttribute('hx-post', '/productos');
+            htmx.process(document.getElementById('producto-form'));
+        }
+    </script>
+</body>
+</html>
