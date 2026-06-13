@@ -12,25 +12,29 @@ tags:
 creado: 2026-05-15
 ---
 
-#  Gestión de Inventario
+# Gestión de Inventario
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
+![HTMX](https://img.shields.io/badge/htmx-%233366cc.svg?style=flat&logo=html5&logoColor=white)
 ![Database](https://img.shields.io/badge/DB-SQLite-lightgrey?logo=sqlite)
-![Dev Environment|97](https://img.shields.io/badge/Env-Docker-blue?logo=docker)
+![Dev Environment](https://img.shields.io/badge/Env-Docker-blue?logo=docker)
 ![Doc Strategy](https://img.shields.io/badge/Docs-Obsidian-purple?logo=obsidian)
 
-**Gestión de Inventario** es el motor lógico central para el control eficiente de productos, stock y movimientos de almacén, estructurado bajo una arquitectura modular estricta. El proyecto separa completamente la lógica de negocio de la interfaz de usuario, permitiendo que la aplicación opere actualmente vía CLI, con la preparación arquitectónica para evolucionar a una API REST (FastAPI) en el futuro.
+**Gestión de Inventario** es el motor lógico central para el control eficiente de productos, stock y movimientos de almacén, estructurado bajo una arquitectura modular estricta. El sistema ha evolucionado de su prototipo inicial en terminal hacia una interfaz web interactiva en tiempo real (Single Page Application) utilizando un enfoque de renderizado fragmentado desde el servidor.
+
 ---
 
 ##  Stack Tecnológico Seleccionado
 
-| Componente | Tecnología | Justificación |
-| :--- | :--- | :--- |
-| **Lenguaje Core** | Python | Versatilidad y rapidez para implementar lógica de validación compleja. |
-| **Persistencia** | SQLite | Base de datos incrustada que garantiza portabilidad sin configurar servidores externos. |
-| **Interfaz** | CLI (Terminal) | Interfaz ligera y directa para el consumo de recursos eficiente. |
-| **Despliegue** | Docker Compose | Orquestación de contenedores para asegurar un entorno idéntico en desarrollo y producción. |
-| **Documentación**| Markdown | Estrategia Doc-as-Code, centralizando notas de entregas en `docs/`. |
+| Componente        | Tecnología              | Justificación                                                                                                    |
+| :---------------- | :---------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| **Lenguaje Core** | Python                  | Versatilidad y rapidez para implementar lógica de validación compleja.                                           |
+| **Persistencia**  | SQLite                  | Base de datos incrustada que garantiza portabilidad sin configurar servidores externos.                          |
+| **Interfaz**      | CLI (Terminal)          | Interfaz ligera y directa para el consumo de recursos eficiente.                                                 |
+| **Despliegue**    | Docker Compose          | Orquestación de contenedores para asegurar un entorno idéntico en desarrollo y producción.                       |
+| **Documentación** | Markdown                | Estrategia Doc-as-Code, centralizando notas de entregas en `docs/`.                                              |
+| **Interfaz**      | Web UI (FastAPI + HTMX) | Interfaz asíncrona reactiva que renderiza componentes en el servidor sin sobrecarga de JavaScript en el cliente. |
 
 ---
 
@@ -112,11 +116,11 @@ docker-compose up --build
 
 - [x] **Fase 1: Diseño de Lógica Base:** Creación de pseudocódigo en PSeInt (ver `docs/proyecto/entrega_1/`).
     
-- [ ] **Fase 2: Implementación Core:** Definición de diccionarios y funciones puras en el módulo `core/`.
+- [x] **Fase 2: Implementación Core:** Definición de diccionarios y funciones puras en el módulo `core/`.
     
-- [ ] **Fase 3: Persistencia:** Implementación del patrón repositorio sobre SQLite en `storage/`.
+- [x] **Fase 3: Persistencia:** Implementación del patrón repositorio sobre SQLite en `storage/`.
     
-- [ ] **Fase 4: Interfaz de Usuario:** Desarrollo de la CLI interactiva y su conexión con el Core.
+- [x] **Fase 4: Interfaz de Usuario:** Desarrollo de la CLI interactiva y su conexión con el Core.
     
 - [ ] **Fase 5: Pruebas y Despliegue:** Creación de Unit Tests y configuración final de contenedores Docker.
     
