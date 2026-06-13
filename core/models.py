@@ -5,3 +5,4 @@ class Producto(TypedDict):
     nombre: str
     cantidad: int
     precio: float
+    proveedor: str      #   Nueva columna incorporada
