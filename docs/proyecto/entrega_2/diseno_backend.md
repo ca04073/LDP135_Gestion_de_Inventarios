@@ -73,3 +73,17 @@ El sistema se ha escalado para soportar el ciclo de vida completo de los datos:
 * **Modificación (Update):** Implementada mediante `UPDATE` con validación de existencia vía `rowcount`.
 * **Eliminación (Delete):** Implementada mediante `DELETE` con manejo de excepciones para códigos inexistentes.
 * **UX/UI:** Se integró una utilidad de limpieza de consola (`os.system`) para mejorar la legibilidad y presentación del sistema en terminales interactivas.
+
+## ⚙️ Expansión del Modelo de Datos y Operaciones CRUD (Fase 2.5)
+
+Para cumplir con los nuevos requerimientos operativos, el ecosistema evolucionó hacia un sistema de persistencia total y gestión extendida.
+
+### 1. Evolución del Esquema de Datos
+Se incorporó el atributo `proveedor` en todas las capas del sistema bajo un principio de tipado estricto:
+* **Capa Física (SQLite):** Columna `proveedor TEXT NOT NULL DEFAULT 'No Asignado'`.
+* **Capa Lógica (Python):** Extensión del tipo estructurado `Producto` (`TypedDict`).
+
+### 2. Ampliación del Núcleo (Core) y Persistencia
+Se rompió la naturaleza de solo lectura/registro de la entrega anterior mediante la implementación de dos nuevas capacidades arquitectónicas en `storage/repository.py` y `core/inventory.py`:
+* **Modificación Integral (Update):** Permite la mutación controlada de todos los campos de un artículo existente (Nombre, Stock, Precio, Proveedor) mediante consultas SQL parametrizadas, validando previamente que los valores numéricos cumplan con las cláusulas de guarda (no negativos).
+* **Eliminación Definitiva (Delete):** Remueve registros de la base de datos basándose en su clave primaria (`codigo`), manejando excepciones semánticas (`ValueError`) mediante la verificación de filas afectadas (`cursor.rowcount == 0`) si el identificador no existe.
