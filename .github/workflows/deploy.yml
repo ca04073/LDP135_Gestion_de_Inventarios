@@ -3,11 +3,11 @@ name: 🚀 CI/CD Pipeline - Gestión de Inventario
 # 1. Disparadores: Cuándo se ejecuta el pipeline
 on:
   push:
-    branches: [ "main", "ca04073/docker-deployment" ] # Se activa al subir cambios a main o a tu rama de pruebas de infra
+    branches: [ "main", "CA04073/docker-deployment" ]
   pull_request:
     branches: [ "main" ]
 
-# 2. Permisos del GITHUB_TOKEN (Crucial para poder subir la imagen)
+# 2. Permisos del GITHUB_TOKEN
 permissions:
   contents: read
   packages: write
@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Descargar el código del repositorio en el servidor virtual de GitHub
+      # Paso 1: Descargar el código del repositorio
       - name: 📥 Checkout del código
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive' # Mantiene la sincronización si usas submódulos
+          submodules: 'recursive'
 
-      # Paso 2: Autenticarse en el GitHub Container Registry (ghcr.io)
+      # Paso 2: Autenticarse en el GitHub Container Registry
       - name: 🔑 Iniciar sesión en GitHub Packages
         uses: docker/login-action@v3
         with:
@@ -31,7 +31,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Paso 3: Extraer metadatos (etiquetas, versiones) para Docker de forma automática
+      # Paso 3: Extraer metadatos para Docker
       - name: 🏷️ Extraer metadatos para Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -41,12 +41,12 @@ jobs:
             type=raw,value=latest
             type=sha,value={{sha}}
 
-      # Paso 4: Construir la imagen de Docker y subirla al Registry (GHCR)
+      # Paso 4: Construir y subir Imagen Docker (Corregido con 'steps.')
       - name: 🐳 Construir y subir Imagen Docker
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ id.meta.outputs.tags }}
-          labels: ${{ id.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}    # 👈 Corregido aquí
+          labels: ${{ steps.meta.outputs.labels }}  # 👈 Corregido aquí
