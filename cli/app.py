@@ -11,4 +11,4 @@ def iniciar_aplicacion() -> None:
         elif opcion == "3": menus.modificar_producto_ui()
         elif opcion == "4": menus.eliminar_producto_ui()
         elif opcion == "5": break
-        input("\nPresione Enter...")
+        input("\nPresione Enter para continuar...")

@@ -13,7 +13,8 @@ def inicializar_base_datos() -> None:
         codigo TEXT PRIMARY KEY,
         nombre TEXT NOT NULL,
         cantidad INTEGER NOT NULL CHECK(cantidad >= 0),
-        precio REAL NOT NULL CHECK(precio >= 0.0)
+        precio REAL NOT NULL CHECK(precio >= 0.0),
+        proveedor TEXT NOT NULL DEFAULT 'No asignado'
     );
     """
     with obtener_conexion() as conn:
