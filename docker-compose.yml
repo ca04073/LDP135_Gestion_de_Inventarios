@@ -1,0 +1,20 @@
+#version: '3.8'
+
+services:
+  inventario-web:
+    # 1. En desarrollo local usará el "build", pero para el pipeline de GitHub se cambiará por la imagen del Registry
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/ca04073/ldp135-gestion-inventarios:latest
+    container_name: gestion_inventario_app
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      # 2. Mapeamos la base de datos de la máquina host hacia el contenedor para no perder los datos al actualizar
+      - ./data:/app/data
+    environment:
+      - ENV=production
+      # Aquí definiremos la ruta a la base de datos dentro del contenedor en el bloque 'storage'
+      - DATABASE_URL=sqlite:////app/data/inventario.db

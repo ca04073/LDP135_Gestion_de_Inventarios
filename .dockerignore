@@ -1,0 +1,9 @@
+.git
+.github
+.gitignore
+.obsidian
+__pycache__
+*.pyc
+venv
+.venv
+inventario.db
