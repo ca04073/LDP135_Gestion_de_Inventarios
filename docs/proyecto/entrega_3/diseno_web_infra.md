@@ -75,6 +75,29 @@ La API asíncrona expone un flujo cerrado de operaciones interactivas que mapean
 - **`DELETE /productos/{codigo}`:** Remueve el registro físico de la base de datos. Al responder con un cuerpo de texto vacío (`""`) acoplado a la estrategia `hx-swap="outerHTML"`, HTMX elimina de forma inmediata y automática la fila correspondiente del DOM del navegador.
     
 
+## 🛡️ Protocolo Robustecido de Manejo de Errores y Estados HTTP
+
+La migración hacia un entorno Web/API requirió transformar el modelo de excepciones tradicional (capturas síncronas en consola) hacia un **Flujo de Control de Errores Asíncrono** basado en semántica HTTP y manipulación selectiva del DOM vía HTMX.
+
+### 1. Capa de Backend (FastAPI): Semántica de Estados
+Cuando el núcleo del negocio (`core/inventory.py`) intercepta una violación a las cláusulas de guarda (como un intento de registrar un precio o stock negativo), lanza una excepción nativa `ValueError` [diseno_backend.md]. El adaptador web captura esta excepción y, en lugar de romper el hilo de ejecución o devolver una estructura de datos rota, emite una respuesta web controlada:
+* **Código de Estado HTTP 400 (Bad Request):** Indica explícitamente al cliente que la petición falló debido a datos inválidos.
+* **Encapsulamiento UI:** El mensaje del error es pre-renderizado en el servidor dentro de un fragmento HTML estilizado con Tailwind CSS de forma nativa (clases `bg-red-900/50` y `text-red-200`).
+
+### 2. Capa de Frontend (HTMX): Intercepción de Eventos del Ciclo de Vida
+Por defecto, HTMX ignora o no renderiza respuestas que viajen con códigos de estado de error (`4xx` o `5xx`). Para resolver esto de manera elegante en la Single Page Application sin recargar la página, se implementó un interceptor en caliente utilizando el evento nativo `hx-on::before-swap`:
+
+```html
+hx-on::before-swap="if(event.detail.xhr.status === 400) { event.detail.target = htmx.find('#alerta-error'); event.detail.shouldSwap = true; }"
+````
+
+- **Flujo Exitoso (HTTP 200 OK):** La respuesta contiene las filas actualizadas (`filas_tabla.html`) y se inyecta directamente en el cuerpo principal de la tabla (`#tabla-productos`) [diseno_web_infra.md].
+    
+- **Flujo Fallido (HTTP 400 Bad Request):** El evento intercepta la respuesta antes del intercambio, desvía el objetivo dinámicamente hacia un contenedor dedicado a notificaciones (`#alerta-error`) y fuerza la inyección de la alerta de error.
+    
+
+Esto garantiza un sistema tolerante a fallos, previene estados inconsistentes en la base de datos SQLite y ofrece una experiencia de usuario limpia, donde las alertas reactivas aparecen en pantalla de forma instantánea sin interrumpir la persistencia del inventario [diseno_backend.md, diseno_web_infra.md].
+
 ## 🐳 Estrategia de Infraestructura y Despliegue (Docker + Proxmox)
 
 Para garantizar la portabilidad y optimizar el rendimiento en servidores con recursos de hardware modestos o antiguos, se diseñó una infraestructura basada en la virtualización ligera:
