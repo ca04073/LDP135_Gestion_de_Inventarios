@@ -3,7 +3,7 @@ name: 🚀 CI/CD Pipeline - Gestión de Inventario
 # 1. Disparadores: Cuándo se ejecuta el pipeline
 on:
   push:
-    branches: [ "main", "infra/docker-deployment" ] # Se activa al subir cambios a main o a tu rama de pruebas de infra
+    branches: [ "main", "CA04073/docker-deployment" ] # Se activa al subir cambios a main o a tu rama de pruebas de infra
   pull_request:
     branches: [ "main" ]
 
