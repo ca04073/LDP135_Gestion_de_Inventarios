@@ -30,7 +30,7 @@ En lugar de adoptar la sobrecarga de frameworks SPA tradicionales basados en Jav
 HTMX permite al navegador realizar peticiones AJAX directamente mediante atributos HTML declarativos (`hx-post`, `hx-delete`). El servidor FastAPI no responde con pesados archivos JSON que el cliente deba procesar; en su lugar, devuelve pequeños trozos de HTML pre-renderizados (componentes) que HTMX inyecta en el DOM en tiempo real sin recargar la página.
 
 ### 2. Preservación Absoluta del Núcleo (Arquitectura Hexagonal)
-Gracias al aislamiento arquitectónico implementado en la Fase 2, la integración de la interfaz web se realizó sin modificar una sola línea de código del núcleo del negocio (`core/`) o de la capa de persistencia (`storage/`). El módulo `web/app.py` funciona simplemente como un nuevo adaptador de entrada (Controller) que sustituye por completo a la CLI (`cli/menus.py`).
+Políticas de desacoplamiento estricto permitieron que la integración de la interfaz web se realizara sin modificar una sola línea de código del núcleo del negocio (`core/`) o de la capa de persistencia (`storage/`). El módulo `web/app.py` funciona simplemente como un nuevo adaptador de entrada (Controller) que sustituye por completo a la interfaz de consola.
 
 > [!IMPORTANT]
 > 
@@ -48,10 +48,10 @@ El diseño visual se construyó utilizando **Tailwind CSS** acoplado a un motor 
 Para mitigar la sobrecarga de dependencias de Node.js en entornos de desarrollo restringidos, la paleta de colores corporativa se centralizó en la cabecera (`<head>`) del archivo base `index.html` extendiendo el objeto nativo global `tailwind.config`.
 
 ### 2. Abstracción por Variables de Intercambio 
-Todos los componentes visuales (`index.html` y `filas_tabla.html`) consumen alias lógicos (`text-brand-claro`, `bg-brand-base`, `hover:bg-brand-oscuro`) en lugar de colores fijos. Esto permite alternar la identidad visual completa del software (como el paso del Verde Esmeralda al Morado o al que se elija según la necesidad) modificando exclusivamente tres variables hexadecimales en un único punto del código.
+Todos los componentes visuales (`index.html` y `filas_tabla.html`) consumen alias lógicos (`text-brand-claro`, `bg-brand-base`, `hover:bg-brand-oscuro`) en lugar de colores fijos. Esto permite alternar la identidad visual completa del software modificando exclusivamente tres variables hexadecimales en un único punto del código.
 
 ```text
-[Ajuste de Hexadecimales en index.html] 
+[Ajuste de Hexadecimales in index.html] 
                   │
                   ▼ (Hereda automáticamente)
 [Clases semánticas: brand-claro / brand-base]
@@ -75,34 +75,39 @@ La API asíncrona expone un flujo cerrado de operaciones interactivas que mapean
 - **`DELETE /productos/{codigo}`:** Remueve el registro físico de la base de datos. Al responder con un cuerpo de texto vacío (`""`) acoplado a la estrategia `hx-swap="outerHTML"`, HTMX elimina de forma inmediata y automática la fila correspondiente del DOM del navegador.
     
 
-## 🛡️ Protocolo Robustecido de Manejo de Errores y Estados HTTP
+## 🛡️ Protocolo de Manejo de Errores y Estados HTTP en la Web
 
-La migración hacia un entorno Web/API requirió transformar el modelo de excepciones tradicional (capturas síncronas en consola) hacia un **Flujo de Control de Errores Asíncrono** basado en semántica HTTP y manipulación selectiva del DOM vía HTMX.
+La migración hacia un entorno Web/API requirió transformar el modelo de excepciones tradicional hacia un **Flujo de Control de Errores Asíncrono** basado en semántica HTTP y la manipulación selectiva del DOM mediante HTMX.
 
-### 1. Capa de Backend (FastAPI): Semántica de Estados
-Cuando el núcleo del negocio (`core/inventory.py`) intercepta una violación a las cláusulas de guarda (como un intento de registrar un precio o stock negativo), lanza una excepción nativa `ValueError` [diseno_backend.md]. El adaptador web captura esta excepción y, en lugar de romper el hilo de ejecución o devolver una estructura de datos rota, emite una respuesta web controlada:
-* **Código de Estado HTTP 400 (Bad Request):** Indica explícitamente al cliente que la petición falló debido a datos inválidos.
-* **Encapsulamiento UI:** El mensaje del error es pre-renderizado en el servidor dentro de un fragmento HTML estilizado con Tailwind CSS de forma nativa (clases `bg-red-900/50` y `text-red-200`).
+### 1. Backend (FastAPI): Semántica de Estados y Cláusulas de Guarda
 
-### 2. Capa de Frontend (HTMX): Intercepción de Eventos del Ciclo de Vida
-Por defecto, HTMX ignora o no renderiza respuestas que viajen con códigos de estado de error (`4xx` o `5xx`). Para resolver esto de manera elegante en la Single Page Application sin recargar la página, se implementó un interceptor en caliente utilizando el evento nativo `hx-on::before-swap`:
+Cuando el núcleo del negocio (`core/inventory.py`) intercepta una violación a las reglas (como stock o precios negativos), lanza una excepción nativa `ValueError`. El adaptador web captura esta excepción y emite una respuesta web controlada:
 
-```html
+- **HTTP 400 Bad Request:** Indica explícitamente al cliente que la petición falló debido a datos inválidos.
+    
+- **Fragmento UI Pre-renderizado:** El mensaje del error es encapsulado directamente en un componente HTML de alerta estilizado con Tailwind CSS de forma nativa utilizando las clases `bg-red-900/50` y `text-red-200`.
+    
+
+### 2. Frontend (HTMX): Intercepción del Ciclo de Vida y Desvío del DOM
+
+Por defecto, HTMX ignora o no renderiza respuestas que viajen con códigos de estado de error (`4xx`). Para solucionar esto de manera reactiva en la Single Page Application sin recargar la página, se implementó un interceptor utilizando el evento nativo `hx-on::before-swap`:
+
+HTML
+
+```
 hx-on::before-swap="if(event.detail.xhr.status === 400) { event.detail.target = htmx.find('#alerta-error'); event.detail.shouldSwap = true; }"
-````
+```
 
-- **Flujo Exitoso (HTTP 200 OK):** La respuesta contiene las filas actualizadas (`filas_tabla.html`) y se inyecta directamente en el cuerpo principal de la tabla (`#tabla-productos`) [diseno_web_infra.md].
+- **Flujo Exitoso (HTTP 200 OK):** La respuesta inyecta las filas actualizadas (`filas_tabla.html`) directamente en el cuerpo principal de la tabla (`#tabla-productos`).
     
-- **Flujo Fallido (HTTP 400 Bad Request):** El evento intercepta la respuesta antes del intercambio, desvía el objetivo dinámicamente hacia un contenedor dedicado a notificaciones (`#alerta-error`) y fuerza la inyección de la alerta de error.
+- **Flujo Fallido (HTTP 400 Bad Request):** El evento intercepta la respuesta antes del intercambio, desvía el objetivo dinámicamente hacia el contenedor dedicado a notificaciones (`#alerta-error`) y fuerza la inyección de la alerta de error.
     
 
-Esto garantiza un sistema tolerante a fallos, previene estados inconsistentes en la base de datos SQLite y ofrece una experiencia de usuario limpia, donde las alertas reactivas aparecen en pantalla de forma instantánea sin interrumpir la persistencia del inventario [diseno_backend.md, diseno_web_infra.md].
+Esto garantiza un sistema tolerante a fallos, previene estados inconsistentes en la base de datos SQLite y ofrece una experiencia de usuario limpia, donde las alertas reactivas aparecen en pantalla de forma instantánea sin interrumpir la persistencia del inventario.
 
 ## 🐳 Estrategia de Infraestructura y Despliegue (Docker + Proxmox)
 
 Para garantizar la portabilidad y optimizar el rendimiento en servidores con recursos de hardware modestos o antiguos, se diseñó una infraestructura basada en la virtualización ligera:
-
-Plaintext
 
 ```
  ┌────────────────────────────────────────────────────────┐
@@ -119,20 +124,27 @@ Plaintext
 
 ### 1. Encapsulamiento Ultraligero (Dockerfile)
 
-Se utiliza una imagen base de **Python Alpine**, reduciendo el tamaño total del contenedor a menos de 100MB. El contenedor expone el puerto nativo `8000` y delega la ejecución al servidor de grado de producción `uvicorn`.
+Se utiliza una imagen base oficial de **Python Alpine**, reduciendo el tamaño total del contenedor a menos de 100MB. El entorno expone el puerto nativo `8000` y delega la ejecución al servidor de grado de producción `uvicorn`.
 
-### 2. Orquestación y Persistencia (Docker Compose)
+### 2. Orquestación Desacoplada y Persistencia (Docker Compose)
 
-Dado que SQLite opera sobre un único archivo local (`inventario.db`), reiniciar un contenedor destruiría el historial académico de datos. Para solucionar esto, el orquestador `docker-compose.yml` monta un **Volumen de Datos Externo**, enlazando el archivo de la base de datos con el almacenamiento físico del sistema anfitrión, garantizando la persistencia indestructible de la información.
+Para el entorno del servidor de producción, se implementó un archivo `docker-compose.yml` optimizado que elimina las dependencias de compilación local (`build:`).
 
-### 3. Alojamiento en Contenedores LXC (Proxmox Virtual Environment)
+- **Persistencia Indestructible:** Dado que SQLite opera sobre un archivo local (`inventario.db`), el orquestador monta un volumen externo (`./data:/app/data`), enlazando el almacenamiento del contenedor con el disco físico del host anfitrión para prevenir pérdidas de datos durante actualizaciones.
+    
+- **Optimización de Puertos:** Se mapea el puerto web estándar HTTP `80` del servidor hacia el `8000` interno del contenedor, permitiendo el ingreso directo a la plataforma desde la red local mediante la IP del host sin declarar sufijos de puerto en el navegador.
+    
 
-En lugar de instanciar Máquinas Virtuales completas con sobrecarga de hardware, el proyecto se despliega dentro de un **Contenedor Linux (LXC)**. Al compartir de forma directa el núcleo del servidor físico, el consumo de memoria RAM y CPU se reduce al mínimo absoluto, permitiendo una ejecución fluida incluso en procesadores de generaciones anteriores.
+### 3. Alojamiento Eficiente en Contenedores LXC (Proxmox VE)
 
-## 🚀 Fase de Despliegue e Infraestructura Automatizada (CI/CD)
+En lugar de instanciar Máquinas Virtuales con sobrecarga de hardware, el entorno Docker se despliega dentro de un **Contenedor Linux (LXC)** en Proxmox. Al compartir directamente el núcleo del servidor físico, el consumo de memoria RAM y CPU se reduce al mínimo absoluto, permitiendo una ejecución fluida incluso en procesadores de generaciones anteriores.
 
-El proceso de despliegue fue robustecido mediante un pipeline de Integración Continua (GitHub Actions) y Orquestación de Contenedores (Docker Compose), logrando un entorno de producción aislado e independiente del entorno de desarrollo.
+## 🚀 Infraestructura Automatizada y Pipeline de Despliegue (CI/CD)
 
-1. **Compilación en la Nube:** Cada actualización sobre la rama de seguimiento `CA04073/docker-deployment` dispara una compilación automatizada que empaqueta la aplicación basada en Python Alpine, garantizando un binario de tamaño optimizado y libre de dependencias rotas.
-2. **Registro Privado:** Las imágenes validadas son almacenadas con etiquetas de control (`:latest` y `:sha`) en el GitHub Container Registry (ghcr.io), protegidas bajo autenticación de llaves securizadas (PAT).
-3. **Despliegue Desacoplado:** El servidor privado (Proxmox) descarga y ejecuta de forma directa el paquete remoto a través de un archivo `docker-compose.yml` optimizado, exponiendo el servicio en el puerto web estándar (HTTP 80) y asegurando la persistencia inmutable de la base de datos SQLite en el volumen local `./data`.
+El proceso de empaquetado y puesta en marcha final del sistema fue robustecido mediante un pipeline de Integración Continua (GitHub Actions) enlazado al control de acceso por carnet del repositorio (`CA04073/docker-deployment`).
+
+1. **Compilación Automatizada en la Nube:** Cada actualización sobre el repositorio dispara un flujo de trabajo que compila de forma aislada la receta del `Dockerfile`, garantizando un artefacto limpio y libre de dependencias rotas del entorno de desarrollo.
+    
+2. **Registro de Paquetes (GitHub Container Registry):** Las imágenes validadas se almacenan de forma segura bajo etiquetas de control de versiones (`:latest` y el `:sha` único del commit de Git) en el dominio privado de `ghcr.io`, protegidas mediante tokens de acceso personal clásicos (PAT) con permisos explícitos de lectura.
+    
+3. **Flujo de Trabajo Blindado (Branch Protection):** Se incorporaron reglas estrictas de protección en la rama `main` que impiden los pushes directos en la terminal. El sistema obliga a interactuar a través de Pull Requests (PR) auditados y requiere de forma obligatoria que el estado del pipeline de Actions termine en verde antes de habilitar la fusión del código a la rama principal.

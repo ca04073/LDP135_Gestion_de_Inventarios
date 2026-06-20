@@ -122,7 +122,7 @@ docker-compose up --build
     
 - [x] **Fase 4: Interfaz de Usuario:** Desarrollo de la CLI interactiva y su conexión con el Core.
     
-- [ ] **Fase 5: Pruebas y Despliegue:** Creación de Unit Tests y configuración final de contenedores Docker.
+- [x] **Fase 5: Pruebas y Despliegue:** Creación de Unit Tests y configuración final de contenedores Docker.
     
 
 ---
@@ -130,3 +130,51 @@ docker-compose up --build
 > [!NOTE]
 > 
 > Este archivo es el punto de entrada oficial para revisiones de código. Para detalles arquitectónicos, diagramas o bitácoras de decisiones, referirse al directorio `/docs/`.
+
+## 🌐 Fase 3: Interfaz Web Reactiva e Infraestructura Contenedorizada (Completado)
+
+Se migró la capa de presentación desde la interfaz de línea de comandos (CLI) hacia una **Single Page Application (SPA)** reactiva de alto rendimiento utilizando **FastAPI** y **HTMX**, eliminando la sobrecarga de frameworks JavaScript pesados. El sistema incluye un pipeline de integración continua y un empaquetado profesional listo para producción.
+
+### 🛠️ Stack Tecnológico de Infraestructura
+* **Backend:** FastAPI (Python 3.10-alpine) para la API asíncrona [diseno_web_infra.md].
+* **Frontend:** HTMX para la reactividad mediante renderizado de fragmentos HTML en el servidor, estilizado con Tailwind CSS dinámico [diseno_web_infra.md].
+* **Persistencia:** Base de datos SQLite integrada mediante volumen persistente [diseno_web_infra.md].
+* **Orquestación y CI/CD:** Docker, Docker Compose y GitHub Actions (`ghcr.io`) [diseno_web_infra.md].
+
+---
+
+### 🚀 Instrucciones de Despliegue Rápido (Producción)
+
+Para levantar el sistema de inventario de forma local o en un servidor sin necesidad de configurar entornos virtuales de Python ni dependencias manuales, ejecuta los siguientes comandos en tu terminal:
+
+1. **Clonar el repositorio y moverse a la carpeta:**
+
+```bash
+git clone [https://github.com/ca04073/LDP135_Gestion_de_Inventarios.git](https://github.com/ca04073/LDP135_Gestion_de_Inventarios.git) cd LDP135_Gestion_de_Inventarios
+```
+
+2. Levantar el entorno contenedorizado con Docker Compose:
+
+```bash
+docker compose up -d --build
+```
+
+3. **Acceder a la aplicación:**
+
+	Si estás en local: 
+	
+- **Interfaz Web del Inventario:** Abre tu navegador en `http://localhost:8000` (o la IP de tu servidor Proxmox).
+    
+- **Documentación Interactiva de la API (Swagger UI):** Accede a `http://localhost:8000/docs`.
+
+	Si estas en despliegue remoto, usa tu url de acceso, por ejemplo:
+		**inventario.mi-dominio.com**
+		
+
+### 🛡️ Características Robustecidas de Grado Profesional
+
+- **Manejo de Errores Asíncrono:** Control semántico de errores mediante estados HTTP 400 Bad Request interceptados en caliente por eventos de HTMX (`before-swap`) para inyección dinámica de alertas en el DOM sin recargas de página [diseno_web_infra.md].
+    
+- **Aislamiento e Inmutabilidad:** La base de datos se almacena en un volumen mapeado local (`./data`), lo que garantiza que los registros de inventario sean indestructibles ante actualizaciones o reinicios del contenedor [diseno_web_infra.md].
+    
+- **Seguridad del Repositorio:** Reglas de protección activadas en la rama `main` que impiden pushes directos, obligando al uso de Pull Requests auditados por el pipeline automático de Actions [diseno_web_infra.md].
