@@ -128,3 +128,11 @@ Dado que SQLite opera sobre un único archivo local (`inventario.db`), reiniciar
 ### 3. Alojamiento en Contenedores LXC (Proxmox Virtual Environment)
 
 En lugar de instanciar Máquinas Virtuales completas con sobrecarga de hardware, el proyecto se despliega dentro de un **Contenedor Linux (LXC)**. Al compartir de forma directa el núcleo del servidor físico, el consumo de memoria RAM y CPU se reduce al mínimo absoluto, permitiendo una ejecución fluida incluso en procesadores de generaciones anteriores.
+
+## 🚀 Fase de Despliegue e Infraestructura Automatizada (CI/CD)
+
+El proceso de despliegue fue robustecido mediante un pipeline de Integración Continua (GitHub Actions) y Orquestación de Contenedores (Docker Compose), logrando un entorno de producción aislado e independiente del entorno de desarrollo.
+
+1. **Compilación en la Nube:** Cada actualización sobre la rama de seguimiento `CA04073/docker-deployment` dispara una compilación automatizada que empaqueta la aplicación basada en Python Alpine, garantizando un binario de tamaño optimizado y libre de dependencias rotas.
+2. **Registro Privado:** Las imágenes validadas son almacenadas con etiquetas de control (`:latest` y `:sha`) en el GitHub Container Registry (ghcr.io), protegidas bajo autenticación de llaves securizadas (PAT).
+3. **Despliegue Desacoplado:** El servidor privado (Proxmox) descarga y ejecuta de forma directa el paquete remoto a través de un archivo `docker-compose.yml` optimizado, exponiendo el servicio en el puerto web estándar (HTTP 80) y asegurando la persistencia inmutable de la base de datos SQLite en el volumen local `./data`.
