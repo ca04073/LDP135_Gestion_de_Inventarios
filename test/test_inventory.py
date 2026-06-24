@@ -1,6 +1,6 @@
 import unittest
 # Importamos la lógica del core. Ajusta el import según tu estructura exacta.
-from core.inventory import InventoryManager
+from core.inventory import inventory
 
 
 class TestInventoryManager(unittest.TestCase):
